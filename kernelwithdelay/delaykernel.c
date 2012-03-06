@@ -17,8 +17,8 @@
  */
 #include <stdlib.h>
 #include <avr/io.h>
-#include <avr/signal.h>
-#include <uint.h>
+#include <avr/interrupt.h>
+#include <stdint.h>
 
 uint8_t Stack[200];
 
@@ -31,7 +31,7 @@ struct TaskCtrBlock			//task control block
 {
 	uint8_t OSTaskStackTop;	//top of stack
 	uint8_t OSWaitTick;		//task delay ticking clock
-}
+}TCB[OS_TASKS+1];
 
 register uint8_t tempR4 asm("r4");
 register uint8_t tempR5 asm("r5");
@@ -71,7 +71,7 @@ void OSStartTask()
 {
 	OSTaskRunningPrio = OS_TASKS;
 	SP = TCB[OS_TASKS].OSTaskStackTop + 17;
-	_asm__volatile_("reti" "\t");
+	__asm__ __volatile__("reti" "\t");
 }
 
 void OSSched(void)
@@ -126,4 +126,89 @@ void OSSched(void)
 	__asm__ __volatile__("POP R19\t");						//R28 and R29 are used to build pointer of the stack
 	__asm__ __volatile__("POP R18\t");
 
+}
+
+void OSTimeDly(uint8_t ticks)
+{
+	if(ticks)
+	{
+		OSRdyTbl &= ~(0x01<<OSTaskRunningPrio);
+		TCB[OSTaskRunningPrio].OSWaitTick = ticks;
+		OSSched();											//Reschedule
+	}
+}
+
+void TCN0Init(void)
+{
+	TCCR0A = 0;
+	TCCR0B = 0;
+	TCCR0B |= (1<<CS02);
+	TIMSK0 |= (1<<TOIE0);
+	TCNT0 = 100;
+}
+
+SIGNAL(SIG_OVERFLOW0)
+{
+	uint8_t i;
+	for (i = 0; i < OS_TASKS; i++) {
+		if (TCB[i].OSWaitTick) 
+		{
+			TCB[i].OSWaitTick--;
+			if (TCB[i].OSWaitTick==0) 
+			{
+				OSRdyTbl |= (0x01<<i);
+			}
+		}
+	}
+	TCNT0 = 100;
+}
+
+void Task0()
+{
+	uint8_t j=0;
+	while (1)
+	{
+		PORTB = j++;
+		OSTimeDly(2);
+	}
+}
+
+void Task1()
+{
+	uint8_t j=0;
+	while (1)
+	{
+		PORTC = j++;
+		OSTimeDly(4);
+	}
+}
+
+void Task2()
+{
+	uint8_t j=0;
+	while (1) 
+	{
+		PORTD = j++;
+		OSTimeDly(8);
+	}
+}
+
+void TaskScheduler()
+{
+	while (1)
+	{
+		OSSched();
+	}
+}
+
+int main(void) 
+{
+	TCN0Init();
+	OSRdyTbl = 0;
+	OSTaskRunningPrio = 0;
+	OSTaskCreate(Task0, &Stack[49], 0);
+	OSTaskCreate(Task1, &Stack[99], 1);
+	OSTaskCreate(Task2, &Stack[149], 2);
+	OSTaskCreate(TaskScheduler, &Stack[199], OS_TASKS);
+	OSStartTask();
 }

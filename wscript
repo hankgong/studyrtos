@@ -13,10 +13,11 @@ def options(opt):
 
 def configure(conf):
 	conf.load('compiler_c')
-	conf.env.append_value('CFLAGS', ['-g','-o2',  '-mmcu=atmega328'])
+	conf.env.append_value('CFLAGS', ['-g','-o2',  '-mmcu=atmega2560'])
 	
 def build(bld):
 	bld.program(source='gccregs/regs.c', target='regs.elf')
 	bld(rule='avr-objdump -h -S ${SRC} > ${TGT}', source='regs.elf', target='regs.lst')
 	bld.program(source='gccregs/regvars.c', target='regvars.elf')
 	bld(rule='avr-objdump -h -S ${SRC} > ${TGT}', source='regvars.elf', target='regvars.lst')
+	bld.program(source='kernelwithdelay/delaykernel.c', target='delaykernel.elf')
