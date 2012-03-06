@@ -13,7 +13,7 @@ def options(opt):
 
 def configure(conf):
 	conf.load('compiler_c')
-	conf.env.append_value('CFLAGS', ['-g','-o2',  '-mmcu=atmega2560'])
+	conf.env.append_value('CFLAGS', ['-g','-o2',  '-mmcu=atmega328p', '-DF_CPU=16000000UL'])
 	
 def build(bld):
 	bld.program(source='gccregs/regs.c', target='regs.elf')

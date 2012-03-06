@@ -19,6 +19,13 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
+#include <stdio.h>
+
+#define F_CPU 16000000UL
+#define BAUD 9600
+
+#include <util/setbaud.h>
+
 
 uint8_t Stack[200];
 
@@ -47,6 +54,43 @@ register uint8_t tempR14 asm("r14");
 register uint8_t tempR15 asm("r15");
 register uint8_t tempR16 asm("r16");
 register uint8_t tempR17 asm("r17");
+
+#define BITRATE F_CPU/BAUD
+
+/*[>  serial communication <]*/
+/*void uart_init(void)*/
+/*{*/
+	/*[>  set the baud rate <]*/
+	/*UBRR0H = (unsigned char) (BITRATE>>8);//UBRRH_VALUE;*/
+	/*UBRR0L = (unsigned char)BITRATE;//UBRRL_VALUE;*/
+	
+	/*[>#if USE_2X<]*/
+		/*[>UCSR0A |= _BV(U2X0);<]*/
+	/*[>#else<]*/
+		/*[>UCSR0A &= ~(_BV(U2X0));<]*/
+	/*[>#endif<]*/
+	/*[>  Set the framing to 8N1 <]*/
+	/*[>UCSRC = _BV(UCSZ01) | _BV(UCSZ0);			[>  8-bit data <]<]*/
+	/*UCSR0C = (3<<UCSZ00);*/
+	/*UCSR0B = _BV(RXEN0) | _BV(TXEN0);			[>  enable RX and TX <]*/
+/*}*/
+
+/*void uart_putchar(char c) */
+/*{*/
+	/*//UDR0 = c;*/
+	/*loop_until_bit_is_set(UCSR0A, UDRE0);		[>  wait until data register empty <]*/
+	/*UDR0 = c;*/
+/*}*/
+
+/*char uart_getchar(void) */
+/*{*/
+	/*loop_until_bit_is_set(UCSR0A, RXC0);		[>  wait until data exists <]*/
+	/*return UDR0;*/
+/*}*/
+
+/*//FILE uart_io = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);*/
+/*FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);*/
+/*FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);*/
 
 //create a task
 void OSTaskCreate(void (*Task)(void), uint8_t *Stack, uint8_t TaskID)
@@ -146,8 +190,8 @@ void TCN0Init(void)
 	TIMSK0 |= (1<<TOIE0);
 	TCNT0 = 100;
 }
-
-SIGNAL(SIG_OVERFLOW0)
+ 
+SIGNAL(TIMER0_OVF_vect)
 {
 	uint8_t i;
 	for (i = 0; i < OS_TASKS; i++) {
@@ -169,6 +213,7 @@ void Task0()
 	while (1)
 	{
 		PORTB = j++;
+		/*printf("task 0\n\r");*/
 		OSTimeDly(2);
 	}
 }
@@ -179,6 +224,7 @@ void Task1()
 	while (1)
 	{
 		PORTC = j++;
+		/*printf("task 1\n\r");*/
 		OSTimeDly(4);
 	}
 }
@@ -189,6 +235,7 @@ void Task2()
 	while (1) 
 	{
 		PORTD = j++;
+		/*printf("task 2\n\r");*/
 		OSTimeDly(8);
 	}
 }
@@ -203,6 +250,12 @@ void TaskScheduler()
 
 int main(void) 
 {
+	/*uart_init();*/
+	/*stdout = &uart_output;*/
+	/*stdin  = &uart_input;*/
+	
+	/*printf("start of program\n\r");*/
+
 	TCN0Init();
 	OSRdyTbl = 0;
 	OSTaskRunningPrio = 0;
