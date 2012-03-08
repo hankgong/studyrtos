@@ -1,0 +1,22 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CLRBIT	fish.c	21;"	d	file:
+OSSched	delaykernel.c	/^void OSSched(void)$/;"	f	signature:(void)
+OSStartTask	delaykernel.c	/^void OSStartTask()$/;"	f
+OSTaskCreate	delaykernel.c	/^void OSTaskCreate(void (*Task)(void), uint8_t *Stack, uint8_t TaskID)$/;"	f	signature:(void (*Task)(void), uint8_t *Stack, uint8_t TaskID)
+OSTaskStackTop	delaykernel.c	/^	uint8_t OSTaskStackTop;	\/*top of stack*\/$/;"	m	struct:TaskCtrBlock	file:	access:public
+OSWaitTick	delaykernel.c	/^	uint8_t OSWaitTick;		\/*task delay ticking clock*\/$/;"	m	struct:TaskCtrBlock	file:	access:public
+OS_TASKS	delaykernel.c	36;"	d	file:
+SETBIT	fish.c	20;"	d	file:
+TCB	delaykernel.c	/^}TCB[OS_TASKS+1];$/;"	v	typeref:struct:TaskCtrBlock
+TaskCtrBlock	delaykernel.c	/^struct TaskCtrBlock			\/\/task control block$/;"	s	file:
+TaskCtrBlock::OSTaskStackTop	delaykernel.c	/^	uint8_t OSTaskStackTop;	\/*top of stack*\/$/;"	m	struct:TaskCtrBlock	file:	access:public
+TaskCtrBlock::OSWaitTick	delaykernel.c	/^	uint8_t OSWaitTick;		\/*task delay ticking clock*\/$/;"	m	struct:TaskCtrBlock	file:	access:public
+init	fish.c	/^void init(void)$/;"	f	signature:(void)
+main	delaykernel.c	/^int main(void) $/;"	f	signature:(void)
+main	fish.c	/^int main(void)$/;"	f	signature:(void)
+myStack	delaykernel.c	/^unsigned char myStack[18];$/;"	v

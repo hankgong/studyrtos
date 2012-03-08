@@ -23,12 +23,13 @@ unsigned char add(unsigned char b, unsigned char c, unsigned char d)
 	return b+c*d;
 }
 
+
 int main(void)
 {
 	unsigned char a = 0;
 	while(1)
 	{
 		a++;
-		PORTB=add(a,a,a);
+		PORTB=a;
 	}
 }

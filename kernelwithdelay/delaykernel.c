@@ -15,30 +15,32 @@
  *
  * =====================================================================================
  */
-#include <stdlib.h>
+
+//#include <stdlib.h>
 #include <avr/io.h>
+#include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
-#include <stdio.h>
+//#include <stdio.h>
 
-#define F_CPU 16000000UL
-#define BAUD 9600
+//#define F_CPU 16000000UL
+//#define BAUD 9600
 
-#include <util/setbaud.h>
+//#include <util/setbaud.h>
 
-
-uint8_t Stack[200];
+unsigned char myStack[18];
 
 register uint8_t OSRdyTbl asm("r2");				//task execution table
 register uint8_t OSTaskRunningPrio asm("r3");	//the running task
 
 #define OS_TASKS 3
-
+ 
 struct TaskCtrBlock			//task control block
 {
-	uint8_t OSTaskStackTop;	//top of stack
-	uint8_t OSWaitTick;		//task delay ticking clock
+	uint8_t OSTaskStackTop;	/*top of stack*/
+	uint8_t OSWaitTick;		/*task delay ticking clock*/
 }TCB[OS_TASKS+1];
+
 
 register uint8_t tempR4 asm("r4");
 register uint8_t tempR5 asm("r5");
@@ -55,7 +57,7 @@ register uint8_t tempR15 asm("r15");
 register uint8_t tempR16 asm("r16");
 register uint8_t tempR17 asm("r17");
 
-#define BITRATE F_CPU/BAUD
+//#define BITRATE F_CPU/BAUD
 
 /*[>  serial communication <]*/
 /*void uart_init(void)*/
@@ -107,161 +109,167 @@ void OSTaskCreate(void (*Task)(void), uint8_t *Stack, uint8_t TaskID)
 	for (i = 0; i < 14; i++) {
 		*Stack --= i;
 		TCB[TaskID].OSTaskStackTop = (uint16_t)Stack;	//Store the artificial stack top to the array
-		OSRdyTbl |= 0x01<<TaskID;		//Task ready table is ready
+		/*OSRdyTbl |= 0x01<<TaskID;		//Task ready table is ready*/
 	}
 }
 
 void OSStartTask()
 {
-	OSTaskRunningPrio = OS_TASKS;
+	/*OSTaskRunningPrio = OS_TASKS;*/
 	SP = TCB[OS_TASKS].OSTaskStackTop + 17;
-	__asm__ __volatile__("reti" "\t");
+	/*__asm__ __volatile__("reti" "\t");*/
 }
-
+ 
 void OSSched(void)
 {
 	//store the registers into the stack
-	__asm__ __volatile__("PUSH __zero_reg__ \t");	//R1
-	__asm__ __volatile__("PUSH __tmp_reg__ \t");	//R0
-	__asm__ __volatile__("IN __tmp_reg__, __SREG__ \t");	//store SREG
-	__asm__ __volatile__("PUSH __tmp_reg__\t");
-	__asm__ __volatile__("CLR __zero_reg__\t");				//clear R0
-	__asm__ __volatile__("PUSH R18\t");
-	__asm__ __volatile__("PUSH R19\t");
-	__asm__ __volatile__("PUSH R20\t");
-	__asm__ __volatile__("PUSH R21\t");
-	__asm__ __volatile__("PUSH R22\t");
-	__asm__ __volatile__("PUSH R23\t");
-	__asm__ __volatile__("PUSH R24\t");
-	__asm__ __volatile__("PUSH R25\t");
-	__asm__ __volatile__("PUSH R26\t");
-	__asm__ __volatile__("PUSH R27\t");
-	__asm__ __volatile__("PUSH R30\t");
-	__asm__ __volatile__("PUSH R31\t");
-	__asm__ __volatile__("PUSH R28\t");						//R28 and R29 are used to build pointer of the stack
-	__asm__ __volatile__("PUSH R29\t");
+	/*__asm__ __volatile__("PUSH __zero_reg__ \t");	//R1*/
+	/*__asm__ __volatile__("PUSH __tmp_reg__ \t");	//R0*/
+	/*__asm__ __volatile__("IN __tmp_reg__, __SREG__ \t");	//store SREG*/
+	/*__asm__ __volatile__("PUSH __tmp_reg__\t");*/
+	/*__asm__ __volatile__("CLR __zero_reg__\t");				//clear R0*/
+	/*__asm__ __volatile__("PUSH R18\t");*/
+	/*__asm__ __volatile__("PUSH R19\t");*/
+	/*__asm__ __volatile__("PUSH R20\t");*/
+	/*__asm__ __volatile__("PUSH R21\t");*/
+	/*__asm__ __volatile__("PUSH R22\t");*/
+	/*__asm__ __volatile__("PUSH R23\t");*/
+	/*__asm__ __volatile__("PUSH R24\t");*/
+	/*__asm__ __volatile__("PUSH R25\t");*/
+	/*__asm__ __volatile__("PUSH R26\t");*/
+	/*__asm__ __volatile__("PUSH R27\t");*/
+	/*__asm__ __volatile__("PUSH R30\t");*/
+	/*__asm__ __volatile__("PUSH R31\t");*/
+	/*__asm__ __volatile__("PUSH R28\t");						//R28 and R29 are used to build pointer of the stack*/
+	/*__asm__ __volatile__("PUSH R29\t");*/
 
-	TCB[OSTaskRunningPrio].OSTaskStackTop = SP;
+	/*TCB[OSTaskRunningPrio].OSTaskStackTop = SP;*/
 
 	uint8_t OSNextTaskID;
-	for(OSNextTaskID = 0; 
-			OSNextTaskID < OS_TASKS && !(OSRdyTbl & (0x01<<OSNextTaskID));
-			OSNextTaskID++);
+	/*for(OSNextTaskID = 0; */
+			/*OSNextTaskID < OS_TASKS && !(OSRdyTbl & (0x01<<OSNextTaskID));*/
+			/*OSNextTaskID++);*/
 	{
-		OSTaskRunningPrio = OSNextTaskID;
+		/*OSTaskRunningPrio = OSNextTaskID;*/
 	}
 
-	cli();													//keep the stack ISR
-	SP = TCB[OSTaskRunningPrio].OSTaskStackTop;
-	sei();
+	/*cli();													//keep the stack ISR*/
+	/*SP = TCB[OSTaskRunningPrio].OSTaskStackTop;*/
+	/*sei();*/
 
-	__asm__ __volatile__("POP R29\t");
-	__asm__ __volatile__("POP R28\t");
-	__asm__ __volatile__("POP R31\t");
-	__asm__ __volatile__("POP R30\t");
-	__asm__ __volatile__("POP R27\t");
-	__asm__ __volatile__("POP R26\t");
-	__asm__ __volatile__("POP R25\t");
-	__asm__ __volatile__("POP R24\t");
-	__asm__ __volatile__("POP R23\t");
-	__asm__ __volatile__("POP R22\t");
-	__asm__ __volatile__("POP R21\t");
-	__asm__ __volatile__("POP R20\t");
-	__asm__ __volatile__("POP R19\t");						//R28 and R29 are used to build pointer of the stack
-	__asm__ __volatile__("POP R18\t");
+	/*__asm__ __volatile__("POP R29\t");*/
+	/*__asm__ __volatile__("POP R28\t");*/
+	/*__asm__ __volatile__("POP R31\t");*/
+	/*__asm__ __volatile__("POP R30\t");*/
+	/*__asm__ __volatile__("POP R27\t");*/
+	/*__asm__ __volatile__("POP R26\t");*/
+	/*__asm__ __volatile__("POP R25\t");*/
+	/*__asm__ __volatile__("POP R24\t");*/
+	/*__asm__ __volatile__("POP R23\t");*/
+	/*__asm__ __volatile__("POP R22\t");*/
+	/*__asm__ __volatile__("POP R21\t");*/
+	/*__asm__ __volatile__("POP R20\t");*/
+	/*__asm__ __volatile__("POP R19\t");						//R28 and R29 are used to build pointer of the stack*/
+	/*__asm__ __volatile__("POP R18\t");*/
 
 }
 
-void OSTimeDly(uint8_t ticks)
+
+/*void OSTimeDly(uint8_t ticks)
 {
 	if(ticks)
 	{
-		OSRdyTbl &= ~(0x01<<OSTaskRunningPrio);
-		TCB[OSTaskRunningPrio].OSWaitTick = ticks;
-		OSSched();											//Reschedule
+		[>OSRdyTbl &= ~(0x01<<OSTaskRunningPrio);<]
+		[>TCB[OSTaskRunningPrio].OSWaitTick = ticks;<]
+		[>OSSched();												Reschedule<]
 	}
-}
+}*/
 
-void TCN0Init(void)
+/*void TCN0Init(void)
 {
-	TCCR0A = 0;
-	TCCR0B = 0;
-	TCCR0B |= (1<<CS02);
-	TIMSK0 |= (1<<TOIE0);
-	TCNT0 = 100;
+	//TCCR0A = 0;
+	//TCCR0B = 0;
+	//TCCR0B |= (1<<CS02);
+	//TIMSK0 |= (1<<TOIE0);
+	//TCNT0 = 100;
 }
- 
-SIGNAL(TIMER0_OVF_vect)
-{
-	uint8_t i;
-	for (i = 0; i < OS_TASKS; i++) {
-		if (TCB[i].OSWaitTick) 
-		{
-			TCB[i].OSWaitTick--;
-			if (TCB[i].OSWaitTick==0) 
-			{
-				OSRdyTbl |= (0x01<<i);
-			}
-		}
-	}
-	TCNT0 = 100;
-}
+ */
+/*SIGNAL(TIMER0_OVF_vect)*/
+/*{*/
+	/*uint8_t i;*/
+	/*for (i = 0; i < OS_TASKS; i++) {*/
+		/*if (TCB[i].OSWaitTick) */
+		/*{*/
+			/*TCB[i].OSWaitTick--;*/
+			/*if (TCB[i].OSWaitTick==0) */
+			/*{*/
+				/*OSRdyTbl |= (0x01<<i);*/
+			/*}*/
+		/*}*/
+	/*}*/
+	/*TCNT0 = 100;*/
+/*}*/
 
-void Task0()
-{
-	uint8_t j=0;
-	while (1)
-	{
-		PORTB = j++;
-		/*printf("task 0\n\r");*/
-		OSTimeDly(2);
-	}
-}
-
-void Task1()
-{
-	uint8_t j=0;
-	while (1)
-	{
-		PORTC = j++;
-		/*printf("task 1\n\r");*/
-		OSTimeDly(4);
-	}
-}
-
-void Task2()
-{
-	uint8_t j=0;
-	while (1) 
-	{
-		PORTD = j++;
-		/*printf("task 2\n\r");*/
-		OSTimeDly(8);
-	}
-}
-
-void TaskScheduler()
-{
-	while (1)
-	{
-		OSSched();
-	}
-}
+//void Task0()
+//{
+//	uint8_t j=0;
+//	while (1)
+//	{
+//		PORTB = j++;
+//		OSTimeDly(2);
+//	}
+//}
+//
+//void Task1()
+//{
+//	uint8_t j=0;
+//	while (1)
+//	{
+//		PORTC = j++;
+//		OSTimeDly(4);
+//	}
+//}
+//
+//void Task2()
+//{
+//	uint8_t j=0;
+//	while (1) 
+//	{
+//		PORTD = j++;
+//		OSTimeDly(8);
+//	}
+//}
+//
+//void TaskScheduler()
+//{
+//	while (1)
+//	{
+//		
+//		//OSSched();
+//	}
+//}
+//
 
 int main(void) 
 {
 	/*uart_init();*/
 	/*stdout = &uart_output;*/
 	/*stdin  = &uart_input;*/
-	
-	/*printf("start of program\n\r");*/
+	int a=0;
+	int b[1000];
 
-	TCN0Init();
-	OSRdyTbl = 0;
-	OSTaskRunningPrio = 0;
-	OSTaskCreate(Task0, &Stack[49], 0);
-	OSTaskCreate(Task1, &Stack[99], 1);
-	OSTaskCreate(Task2, &Stack[149], 2);
-	OSTaskCreate(TaskScheduler, &Stack[199], OS_TASKS);
-	OSStartTask();
+	while(1) 
+	{
+		PORTD=a++;
+		_delay_ms(1000);
+	}
+
+	/*TCN0Init();*/
+	/*OSRdyTbl = 0;*/
+	/*OSTaskRunningPrio = 0;*/
+	/*OSTaskCreate(Task0, &Stack[49], 0);*/
+	/*OSTaskCreate(Task1, &Stack[99], 1);*/
+	/*OSTaskCreate(Task2, &Stack[149], 2);*/
+	/*OSTaskCreate(TaskScheduler, &Stack[199], OS_TASKS);*/
+	/*OSStartTask();*/
 }
