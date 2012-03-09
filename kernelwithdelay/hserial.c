@@ -136,11 +136,11 @@ void hserialInit(unsigned int port){
 	#endif
 
 	SERIALPORT = port;
-	/*my_stream = fdevopen(hs_writeChar, hs_getChar);*/
-	FILE output=FDEV_SETUP_STREAM(hs_writeChar, NULL, _FDEV_SETUP_WRITE);
-	FILE input =FDEV_SETUP_STREAM(NULL, hs_getChar, _FDEV_SETUP_READ);
-	stdout = &output;
-	stdin  = &input;
+	my_stream = fdevopen(hs_writeChar, hs_getChar);
+	/*FILE output=FDEV_SETUP_STREAM(hs_writeChar, NULL, _FDEV_SETUP_WRITE);*/
+	/*FILE input =FDEV_SETUP_STREAM(NULL, hs_getChar, _FDEV_SETUP_READ);*/
+	stdout = my_stream;
+	stdin  = my_stream;
 }
 
 void hserialStart(unsigned long baud){
