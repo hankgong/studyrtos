@@ -8,7 +8,7 @@
  *        Version:  1.0
  *        Created:  12-03-08 12:34:58 PM
  *       Revision:  none
- *       Compiler:  gcc
+ *       Compiler:  avr-gcc
  *
  *         Author:  Huazhi (Hank) GONG, 
  *   Organization:  Bionik Labs
@@ -22,14 +22,16 @@
 #include "hserial.h"
 #include <avr/interrupt.h>
 
-// set the pin as high level
+// set the pin as high level for 
 #define SETBIT(R, B) (R|=_BV(B))
 // set the pin as low level
 #define CLRBIT(R, B) (R&=~_BV(B))
 
+// Use HIGH(PPXx)/LOW(PPXx) to set high/low on a pin
 #define HIGH(P)		(*Ports[P] |= _BV(Bv[P]))
 #define LOW(P)		(*Ports[P] &=~_BV(Bv[P]))
 
+// Use OUTPUT(PPXx)/INPUT(PPXx) to set a pin as output/input
 #define OUTPUT(P)	(*Ddrs[P] |= _BV(Bv[P]))
 #define INPUT(P)	(*Ddrs[P] &=~_BV(Bv[P]))
 
@@ -44,17 +46,21 @@ typedef struct _MotorPins
 
 typedef struct _MotorStatus
 {
-	uint8_t index;
-	uint8_t status;
-	uint8_t pwm;
-	uint8_t direction;
-	uint8_t brake;
-	uint32_t rounds;
+	uint8_t index;			//motor index
+	uint8_t status;			//status indicator: 0 means stop, 1 means forward running, 2 means reverse running
+	uint8_t pwm;			//current pwm value
+	uint8_t direction;		//not using
+	uint8_t brake;			//not using
+	uint32_t rounds;		//rounds counting
 } MotorStatus;
 
+
+//global arrays for motor pins setup and status
 MotorPins motorPins[4];
 MotorStatus motorStatus[4];
 
+
+//Pins alias setup==========================================
 enum PortDef 
 {
 	/*  8 PA pins */
@@ -151,15 +157,19 @@ uint8_t Timers[] =
 	-1, -1, -1, TIMER5A, TIMER5B, TIMER5C, -1, -1,
 };
 
+//Pins alias setup==========================================
+
+
+// PWM output function, val is in range (0, 255) 
 void PWMOutput(enum PortDef pin, int val)
 {
 	OUTPUT(pin);
 	
-	if (val == -1)
+	if (val <= -1)
 	{
 		LOW(pin);
 	} 
-	else if (val == 255)
+	else if (val > 255)
 	{
 		HIGH(pin);
 	}
@@ -198,8 +208,8 @@ void PWMOutput(enum PortDef pin, int val)
 
 /* 
  * ===  FUNCTION  ======================================================================
- *         Name:  init
- *  Description:  This function is used to setup the pin input/output
+ *         Name:  sysInit
+ *  Description:  Everything about configuration registers
  * =====================================================================================
  */
 void sysInit(void)
@@ -208,7 +218,6 @@ void sysInit(void)
 	sei();
 
 	// 0x00 means all port set as input, this is the default mode
-	// if you need to set any port as output, just set the corresponding port as bit 1
 	DDRA = 0x00;
 	DDRB = 0x00;
 	DDRC = 0x00;
@@ -232,35 +241,30 @@ void sysInit(void)
 	SETBIT(TCCR2B, CS22);
 	SETBIT(TCCR2A, WGM20);
 
-	cli();
 	//configuration for counting registers
 	//ICP1
-	/*SETBIT(TIMSK1, ICIE1);*/
-	/*SETBIT(TIMSK1, TOIE1);*/
+	SETBIT(TIMSK1, ICIE1);
 
-	/*SETBIT(TCCR1B, ICNC1);*/
-	/*SETBIT(TCCR1B, ICES1);*/
-	/*SETBIT(TCCR1B, CS10);*/
+	SETBIT(TCCR1B, ICNC1);
+	SETBIT(TCCR1B, ICES1);
+	SETBIT(TCCR1B, CS10);
 
-	/*//ICP3*/
-	/*SETBIT(TIMSK3, ICIE3);*/
-	/*SETBIT(TIMSK3, TOIE3);*/
+	//ICP3
+	SETBIT(TIMSK3, ICIE3);
 
-	/*SETBIT(TCCR3B, ICNC3);*/
-	/*SETBIT(TCCR3B, ICES3);*/
-	/*SETBIT(TCCR3B, CS30);*/
+	SETBIT(TCCR3B, ICNC3);
+	SETBIT(TCCR3B, ICES3);
+	SETBIT(TCCR3B, CS30);
 	
-	/*//ICP4*/
-	/*SETBIT(TIMSK4, ICIE4);*/
-	/*SETBIT(TIMSK4, TOIE4);*/
+	//ICP4
+	SETBIT(TIMSK4, ICIE4);
 
-	/*SETBIT(TCCR4B, ICNC4);*/
-	/*SETBIT(TCCR4B, ICES4);*/
-	/*SETBIT(TCCR4B, CS40);*/
+	SETBIT(TCCR4B, ICNC4);
+	SETBIT(TCCR4B, ICES4);
+	SETBIT(TCCR4B, CS40);
 
 	//ICP5
 	SETBIT(TIMSK5, ICIE5);
-	/*SETBIT(TIMSK5, TOIE5);*/
 
 	SETBIT(TCCR5B, ICNC5);
 	SETBIT(TCCR5B, ICES5);
@@ -269,25 +273,26 @@ void sysInit(void)
 	return;
 }
 
-/*ISR(TIMER1_CAPT_vect, ISR_NOBLOCK)*/
-/*{*/
-	/*motorStatus[3].rounds++;*/
-/*}*/
+//interrupt handling for ICP capturing
+ISR(TIMER1_CAPT_vect, ISR_NOBLOCK)
+{
+	motorStatus[3].rounds++;
+}
 
-/*ISR(TIMER3_CAPT_vect, ISR_NOBLOCK)*/
-/*{*/
-	/*motorStatus[2].rounds++;*/
-/*}*/
+ISR(TIMER3_CAPT_vect, ISR_NOBLOCK)
+{
+	motorStatus[2].rounds++;
+}
 
-/*ISR(TIMER4_CAPT_vect, ISR_NOBLOCK)*/
-/*{*/
-	/*motorStatus[1].rounds++;*/
-/*}*/
+ISR(TIMER4_CAPT_vect, ISR_NOBLOCK)
+{
+	motorStatus[1].rounds++;
+}
 
-/*ISR(TIMER5_CAPT_vect, ISR_NOBLOCK)*/
-/*{*/
-	/*motorStatus[0].rounds++;*/
-/*}*/
+ISR(TIMER5_CAPT_vect, ISR_NOBLOCK)
+{
+	motorStatus[0].rounds++;
+}
 
 /*  All PIN setup here */
 void motorInit(void) 
@@ -463,6 +468,22 @@ int main(void)
 						motorStatus[3].status = 0;
 					}
 					break;
+				case ']':
+					for (int i = 0; i <4; i++)
+						if (motorStatus[i].status != 0)
+						{
+							motorStatus[i].pwm = (motorStatus[i].pwm<=250)?(motorStatus[i].pwm+5):(255);
+							PWMOutput(motorPins[i].pwmPin, motorStatus[i].pwm);
+						}
+					break;
+				case '[':
+					for (int i = 0; i <4; i++)
+						if (motorStatus[i].status != 0)
+						{
+							motorStatus[i].pwm = (motorStatus[i].pwm>5)?(motorStatus[i].pwm-5):(0);
+							PWMOutput(motorPins[i].pwmPin, motorStatus[i].pwm);
+						}
+					break;
 				default:
 					break;
 			}
@@ -471,16 +492,15 @@ int main(void)
 		for (int i = 0; i < 4; i++) 
 		{
 			if(motorStatus[i].status == 1) 
-				printf("Motor %d FW %lu |", i, motorStatus[i].rounds);
+				printf("Motor %d pwm [%d] FW %lu |", i, motorStatus[i].pwm, motorStatus[i].rounds);
 			else if (motorStatus[i].status == 2)
-				printf("Motor %d RVS %lu |", i, motorStatus[i].rounds);
+				printf("Motor %d pwm [%d] RVS %lu |", i, motorStatus[i].pwm, motorStatus[i].rounds);
 		}
 
-		if(motorStatus[0].status!=0 && motorStatus[1].status!=0 && motorStatus[2].status!=0 && motorStatus[3].status!=0) 
+		if(motorStatus[0].status!=0 || motorStatus[1].status!=0 || motorStatus[2].status!=0 || motorStatus[3].status!=0) 
 			printf("\n\r");
 
-		//printf("test me\n\r");
-		_delay_ms(100);
+		_delay_ms(150);
 	}
 	return 1;
 }

@@ -9,12 +9,16 @@
 #include <stdio.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
-//#include <avr/interrupt.h>
-//#include <compat/deprecated.h>
-//#include "wiring.h"
-#include "wiring_private.h"
+#include <avr/interrupt.h>
 
 #include "hserial.h"
+
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
 
 // function prototypes
 //void hs_parseStr(const int port, const char *str);

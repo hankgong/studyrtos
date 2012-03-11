@@ -30,4 +30,7 @@ def build(bld):
 	bld.program(source='kernelwithdelay/fish.c', target='fish.elf', use='test', includes=['.'])
 	bld.objects(source='kernelwithdelay/hserial.c', target='test')
 
-	bld(rule='cp *.elf ~/Mappings/fileserver/4Proteus/studyrtos', always=True, after='cprogram')
+	#bld.program(source='kernelwithdelay/icptest.c', target='icptest.elf')
+
+	#bld(rule='cp *.elf ~/Mappings/fileserver/4Proteus/studyrtos', always=True, after='cprogram')
+	bld(rule='cp *.elf ~/.gvfs/d\ on\ wenjingsun-pc/4Proteus', always=True, after='cprogram')
