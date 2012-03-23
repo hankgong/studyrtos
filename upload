@@ -1,3 +1,11 @@
 #!/bin/sh
 
-cp build/*.elf ~/Mappings/fileserver/4Proteus/studyrtos/
+input=fish.elf
+ext=.hex
+hex=$input$ext
+
+avr-objcopy -O ihex -R .eeprom build/fish.elf $hex
+cp $hex /home/bionik/Mappings/fileserver
+avrdude -pm2560 -cavrispv2 -P/dev/ttyACM0 -u -Uflash:w:$hex:a
+
+#cp build/*.elf ~/Mappings/fileserver/4Proteus/studyrtos/

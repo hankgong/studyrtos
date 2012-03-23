@@ -28,8 +28,11 @@
 #define CLRBIT(R, B) (R&=~_BV(B))
 
 // Use HIGH(PPXx)/LOW(PPXx) to set high/low on a pin
-#define HIGH(P)		(*Ports[P] |= _BV(Bv[P]))
-#define LOW(P)		(*Ports[P] &=~_BV(Bv[P]))
+#define SETHIGH(P)		(*Ports[P] |= _BV(Bv[P]))
+#define SETLOW(P)		(*Ports[P] &=~_BV(Bv[P]))
+
+#define HIGH	1
+#define LOW		0
 
 // Use OUTPUT(PPXx)/INPUT(PPXx) to set a pin as output/input
 #define OUTPUT(P)	(*Ddrs[P] |= _BV(Bv[P]))
@@ -159,9 +162,21 @@ uint8_t Timers[] =
 
 //Pins alias setup==========================================
 
+void digitalWrite(enum PortDef pin, int val)
+{
+	if (val== HIGH)
+	{
+		SETHIGH(pin);
+	} 
+	else if (val == LOW)
+	{
+		SETLOW(pin);
+	}
+}
+
 
 // PWM output function, val is in range (0, 255) 
-void PWMOutput(enum PortDef pin, int val)
+void analogWrite(enum PortDef pin, int val)
 {
 	OUTPUT(pin);
 	
