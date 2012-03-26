@@ -182,11 +182,11 @@ void analogWrite(enum PortDef pin, int val)
 	
 	if (val <= -1)
 	{
-		LOW(pin);
+		digitalWrite(pin, LOW);
 	} 
 	else if (val > 255)
 	{
-		HIGH(pin);
+		digitalWrite(pin, HIGH);
 	}
 	else
 	{
@@ -374,112 +374,112 @@ int main(void)
 				case '1': 
 					if(motorStatus[0].status == 0)
 					{
-						HIGH(motorPins[0].enablePin);
-						HIGH(motorPins[0].brakePin);
-						HIGH(motorPins[0].directionPin);
-						PWMOutput(motorPins[0].pwmPin, motorStatus[0].pwm);
+						digitalWrite(motorPins[0].enablePin, HIGH);
+						digitalWrite(motorPins[0].brakePin, HIGH);
+						digitalWrite(motorPins[0].directionPin, HIGH);
+						analogWrite(motorPins[0].pwmPin, motorStatus[0].pwm);
 						motorStatus[0].status = 1;
 						motorStatus[0].rounds = 0;
 					} 
 					else if (motorStatus[0].status == 1)
 					{
-						HIGH(motorPins[0].enablePin);
-						HIGH(motorPins[0].brakePin);
-						LOW(motorPins[0].directionPin);
-						PWMOutput(motorPins[0].pwmPin, motorStatus[0].pwm);
+						digitalWrite(motorPins[0].enablePin, HIGH);
+						digitalWrite(motorPins[0].brakePin, HIGH);
+						digitalWrite(motorPins[0].directionPin, LOW);
+						analogWrite(motorPins[0].pwmPin, motorStatus[0].pwm);
 						motorStatus[0].status = 2;
 						motorStatus[0].rounds = 0;
 					} 
 					else if (motorStatus[0].status == 2)
 					{
-						LOW(motorPins[0].enablePin);
-						LOW(motorPins[0].brakePin);
-						LOW(motorPins[0].directionPin);
-						PWMOutput(motorPins[0].pwmPin, 0);
+						digitalWrite(motorPins[0].enablePin, LOW);
+						digitalWrite(motorPins[0].brakePin, LOW);
+						digitalWrite(motorPins[0].directionPin, LOW);
+						analogWrite(motorPins[0].pwmPin, 0);
 						motorStatus[0].status = 0;
 					}
 					break;
 				case '2':
 					if(motorStatus[1].status == 0)
 					{
-						HIGH(motorPins[1].enablePin);
-						HIGH(motorPins[1].brakePin);
-						HIGH(motorPins[1].directionPin);
-						PWMOutput(motorPins[1].pwmPin, motorStatus[1].pwm);
+						digitalWrite(motorPins[1].enablePin, HIGH);
+						digitalWrite(motorPins[1].brakePin, HIGH);
+						digitalWrite(motorPins[1].directionPin, HIGH);
+						analogWrite(motorPins[1].pwmPin, motorStatus[1].pwm);
 						motorStatus[1].status = 1;
 						motorStatus[1].rounds = 0;
 					} 
 					else if (motorStatus[1].status == 1)
 					{
-						HIGH(motorPins[1].enablePin);
-						HIGH(motorPins[1].brakePin);
-						LOW(motorPins[1].directionPin);
-						PWMOutput(motorPins[1].pwmPin, motorStatus[1].pwm);
+						digitalWrite(motorPins[1].enablePin, HIGH);
+						digitalWrite(motorPins[1].brakePin, HIGH);
+						digitalWrite(motorPins[1].directionPin, LOW);
+						analogWrite(motorPins[1].pwmPin, motorStatus[1].pwm);
 						motorStatus[1].status = 2;
 						motorStatus[1].rounds = 0;
 					} 
 					else if (motorStatus[1].status == 2)
 					{
-						LOW(motorPins[1].enablePin);
-						LOW(motorPins[1].brakePin);
-						LOW(motorPins[1].directionPin);
-						PWMOutput(motorPins[1].pwmPin, 0);
+						digitalWrite(motorPins[1].enablePin, LOW);
+						digitalWrite(motorPins[1].brakePin, LOW);
+						digitalWrite(motorPins[1].directionPin, LOW);
+						analogWrite(motorPins[1].pwmPin, 0);
 						motorStatus[1].status = 0;
 					}
 					break;
 				case '3':
 					if(motorStatus[2].status == 0)
 					{
-						HIGH(motorPins[2].enablePin);
-						HIGH(motorPins[2].brakePin);
-						HIGH(motorPins[2].directionPin);
-						PWMOutput(motorPins[2].pwmPin, motorStatus[2].pwm);
+						digitalWrite(motorPins[2].enablePin, HIGH);
+						digitalWrite(motorPins[2].brakePin, HIGH);
+						digitalWrite(motorPins[2].directionPin, HIGH);
+						analogWrite(motorPins[2].pwmPin, motorStatus[2].pwm);
 						motorStatus[2].status = 1;
 						motorStatus[2].rounds = 0;
 					} 
 					else if (motorStatus[2].status == 1)
 					{
-						HIGH(motorPins[2].enablePin);
-						HIGH(motorPins[2].brakePin);
-						LOW(motorPins[2].directionPin);
-						PWMOutput(motorPins[2].pwmPin, motorStatus[2].pwm);
+						digitalWrite(motorPins[2].enablePin, HIGH);
+						digitalWrite(motorPins[2].brakePin, HIGH);
+						digitalWrite(motorPins[2].directionPin, LOW);
+						analogWrite(motorPins[2].pwmPin, motorStatus[2].pwm);
 						motorStatus[2].status = 2;
 						motorStatus[2].rounds = 0;
 					} 
 					else if (motorStatus[2].status == 2)
 					{
-						LOW(motorPins[2].enablePin);
-						LOW(motorPins[2].brakePin);
-						LOW(motorPins[2].directionPin);
-						PWMOutput(motorPins[2].pwmPin, 0);
+						digitalWrite(motorPins[2].enablePin, LOW);
+						digitalWrite(motorPins[2].brakePin, LOW);
+						digitalWrite(motorPins[2].directionPin, LOW);
+						analogWrite(motorPins[2].pwmPin, 0);
 						motorStatus[2].status = 0;
 					}
 					break;
 				case '4':
 					if(motorStatus[3].status == 0)
 					{
-						HIGH(motorPins[3].enablePin);
-						HIGH(motorPins[3].brakePin);
-						HIGH(motorPins[3].directionPin);
-						PWMOutput(motorPins[3].pwmPin, motorStatus[0].pwm);
+						digitalWrite(motorPins[3].enablePin, HIGH);
+						digitalWrite(motorPins[3].brakePin, HIGH);
+						digitalWrite(motorPins[3].directionPin, HIGH);
+						analogWrite(motorPins[3].pwmPin, motorStatus[0].pwm);
 						motorStatus[3].status = 1;
 						motorStatus[3].rounds = 0;
 					} 
 					else if (motorStatus[3].status == 1)
 					{
-						HIGH(motorPins[3].enablePin);
-						HIGH(motorPins[3].brakePin);
-						LOW(motorPins[3].directionPin);
-						PWMOutput(motorPins[3].pwmPin, motorStatus[0].pwm);
+						digitalWrite(motorPins[3].enablePin, HIGH);
+						digitalWrite(motorPins[3].brakePin, HIGH);
+						digitalWrite(motorPins[3].directionPin, LOW);
+						analogWrite(motorPins[3].pwmPin, motorStatus[0].pwm);
 						motorStatus[3].status = 2;
 						motorStatus[3].rounds = 0;
 					} 
 					else if (motorStatus[3].status == 2)
 					{
-						LOW(motorPins[3].enablePin);
-						LOW(motorPins[3].brakePin);
-						LOW(motorPins[3].directionPin);
-						PWMOutput(motorPins[3].pwmPin, 0);
+						digitalWrite(motorPins[3].enablePin, LOW);
+						digitalWrite(motorPins[3].brakePin, LOW);
+						digitalWrite(motorPins[3].directionPin, LOW);
+						analogWrite(motorPins[3].pwmPin, 0);
 						motorStatus[3].status = 0;
 					}
 					break;
@@ -488,7 +488,7 @@ int main(void)
 						if (motorStatus[i].status != 0)
 						{
 							motorStatus[i].pwm = (motorStatus[i].pwm<=250)?(motorStatus[i].pwm+5):(255);
-							PWMOutput(motorPins[i].pwmPin, motorStatus[i].pwm);
+							analogWrite(motorPins[i].pwmPin, motorStatus[i].pwm);
 						}
 					break;
 				case '[':
@@ -496,7 +496,7 @@ int main(void)
 						if (motorStatus[i].status != 0)
 						{
 							motorStatus[i].pwm = (motorStatus[i].pwm>5)?(motorStatus[i].pwm-5):(0);
-							PWMOutput(motorPins[i].pwmPin, motorStatus[i].pwm);
+							analogWrite(motorPins[i].pwmPin, motorStatus[i].pwm);
 						}
 					break;
 				default:
